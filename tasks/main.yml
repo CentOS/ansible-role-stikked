@@ -1,1 +1,109 @@
 # Defaults tasks for role stikked
+
+- include_tasks: selinux.yml
+
+- include_role:
+    name: mysql
+
+- name: Creating mandatory (local) DB 
+  include_role: 
+    name: mysql
+    tasks_from: db
+  vars:
+    mysql_db_user: "{{ stikked_db_user }}"
+    mysql_db_pass: "{{ stikked_db_pass }}"
+    mysql_db_name: "{{ stikked_db_name }}"
+  tags:
+    - db
+
+- name: Configuring httpd
+  import_role:
+    name: httpd
+  vars:
+    httpd_tls: "{{ stikked_httpd_tls }}"
+
+- name: Configuring httpd vhost
+  template:
+    src: 02_stikked_vhost.conf.j2
+    dest: /etc/httpd/conf.d/02_stikked_vhost.conf
+  notify:
+    - restart_httpd
+
+- name: Configuring https
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/httpd/conf.d/{{ item }}"
+  notify:
+    - restart_httpd
+  with_items:
+    - ssl-stikked-vhost.conf
+  when: stikked_httpd_tls  
+   
+- import_role:
+    name: httpd
+    tasks_from: pki-tls
+  vars:
+    pki_hostname: "{{ stikked_httpd_hostname }}"
+  notify:
+    - restart_httpd
+  tags:
+    - tls
+  when: stikked_httpd_tls
+
+- name: Adding SCL php
+  include_role:
+    name: httpd
+    tasks_from: scl-php
+  tags:
+    - php
+
+- name: Ensuring we have local directory for instance
+  file:
+    path: "{{ stikked_httpd_dir }}"
+    state: directory
+
+- name: Downloading (once) stikked version
+  unarchive:
+    src: "https://github.com/claudehohl/Stikked/archive/{{ stikked_release }}.tar.gz"
+    remote_src: yes
+    dest: "{{ stikked_httpd_dir }}"
+    creates: "{{ stikked_httpd_dir }}/application"
+    extra_opts:
+      - --strip-components=2
+
+- name: Configuring Stikked instance
+  template:
+    src: stikked.php.j2
+    dest: "{{ stikked_httpd_dir }}/application/config/stikked.php"
+  tags:
+    - config
+
+- name: Distributing favicon
+  copy:
+    src: favicon.ico
+    dest: "{{ stikked_httpd_dir }}/favicon.ico"
+  tags:
+    - config
+
+- name: Custom centos theme
+  synchronize:
+    src: themes/centos/
+    dest: "{{ stikked_httpd_dir }}/themes/centos/"
+  tags:
+    - config
+
+- name: Ensuring we clean-up pastebin
+  cron:
+    name: "Stikked clean up"
+    minute: "*/5"
+    job: "curl --location --silent http://{{ stikked_httpd_hostname }}/cron/{{ stikked_cron_key }}"
+    state: present
+  tags:
+    - config
+    - cron
+
+- name: Ensuring backup user and jobs
+  include_role:
+    name: centos-backup
+    tasks_from: client
+    

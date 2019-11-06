@@ -1,1 +1,30 @@
 # Defaults variables for role stikked
+
+# stikked settings
+stikked_release: 0.12.0
+stikked_site_name: "{{ inventory_hostname }} Pastebin Service"
+# Which graphical theme ? (default, bootstrap, gabdark, gabdark3, geocities, snowkat, stikkedizr, cleanwhite, i386)
+stikked_theme: centos
+stikked_cron_key: ThisIsAVeryLongKeyThatShouldBeRandomSoChangeIT
+stikked_api_key: ThatOneTooShouldBeRandomizedAtYourVariablesLevel
+stikked_enable_captcha: 'false'
+stikked_disable_shorturl: 'true'
+stikked_disable_keep_forever: 'true'
+stikked_spamadmin_user: admin
+stikked_spamadmin_pass: ThisIsNotSpam
+stikked_default_expiration: 1440
+stikked_disallow_search_engines: 'true'
+
+# DB settings
+stikked_db_user: stikked
+stikked_db_pass: reallynotthisone
+stikked_db_name: stikked
+
+# httpd settings
+# redirect to tls/https
+stikked_httpd_tls: True
+stikked_httpd_hostname: "{{ inventory_hostname }}"
+stikked_httpd_aliases:
+  - pb.dev.centos.org
+  - pastebin.dev.centos.org
+stikked_httpd_dir: /var/www/paste  
