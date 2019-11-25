@@ -7,6 +7,7 @@ stikked_site_name: "{{ inventory_hostname }} Pastebin Service"
 stikked_theme: centos
 stikked_cron_key: ThisIsAVeryLongKeyThatShouldBeRandomSoChangeIT
 stikked_api_key: ThatOneTooShouldBeRandomizedAtYourVariablesLevel
+stikked_private_only: 'true'
 stikked_enable_captcha: 'false'
 stikked_disable_shorturl: 'true'
 stikked_disable_keep_forever: 'true'
