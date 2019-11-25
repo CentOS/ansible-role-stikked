@@ -62,14 +62,26 @@
     path: "{{ stikked_httpd_dir }}"
     state: directory
 
-- name: Downloading (once) stikked version
+- name: Downloading/upgrading stikked version
   unarchive:
     src: "https://github.com/claudehohl/Stikked/archive/{{ stikked_release }}.tar.gz"
     remote_src: yes
     dest: "{{ stikked_httpd_dir }}"
-    creates: "{{ stikked_httpd_dir }}/application"
+    creates: "{{ stikked_httpd_dir }}/deployed.{{ stikked_release }}"
     extra_opts:
       - --strip-components=2
+  tags:
+    - deploy
+
+- name: Mark stikked {{ stikked_release }} as deployed
+  template:
+    src: deployed.j2
+    dest: "{{ item }}"
+  with_items:  
+    - "{{ stikked_httpd_dir }}/deployed.{{ stikked_release }}"
+    - "{{ stikked_httpd_dir }}/deployed.current"
+  tags:
+    - deploy
 
 - name: Configuring Stikked instance
   template:
