@@ -4,7 +4,9 @@
 stikked_release: 0.14.0
 stikked_site_name: "{{ inventory_hostname }} Pastebin Service"
 # Which graphical theme ? (default, bootstrap, gabdark, gabdark3, geocities, snowkat, stikkedizr, cleanwhite, i386)
+# Worth knowing that the centos theme is based on bootstrap but patched (see .patch files in case it needs to be rebased)
 stikked_theme: centos
+
 stikked_cron_key: ThisIsAVeryLongKeyThatShouldBeRandomSoChangeIT
 stikked_api_key: ThatOneTooShouldBeRandomizedAtYourVariablesLevel
 stikked_private_only: 'true'
