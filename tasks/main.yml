@@ -118,4 +118,7 @@
   include_role:
     name: centos-backup
     tasks_from: client
-    
+  vars:
+    - centos_role: stikked
+    - role_backup_folders:
+        - "{{ stikked_httpd_dir }}"
